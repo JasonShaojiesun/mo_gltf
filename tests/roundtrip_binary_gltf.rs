@@ -53,14 +53,14 @@ fn test(path: &path::Path) -> Result<(), boxed::Box<dyn error::Error>> {
 
     // Check from_reader/to_vec implementation.
     {
-        let glb = gltf::binary::Glb::from_reader(io::Cursor::new(&original))?;
+        let glb = mo_gltf::binary::Glb::from_reader(io::Cursor::new(&original))?;
         let output = glb.to_vec()?;
         assert_eq!(&original, &output);
     }
 
     // Check from_slice/to_writer implementation.
     {
-        let glb = gltf::binary::Glb::from_slice(&original)?;
+        let glb = mo_gltf::binary::Glb::from_slice(&original)?;
         let mut output = Vec::with_capacity(length);
         glb.to_writer(&mut output as &mut dyn io::Write)?;
         assert_eq!(&original, &output);

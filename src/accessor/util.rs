@@ -28,15 +28,17 @@ impl<'a, T: Item> Iterator for Iter<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-            Iter::Standard(ref mut iter) => iter.next(),
-            Iter::Sparse(ref mut iter) => iter.next(),
+            // Bug fix: use a mutable reference to the inner iterator
+            Iter::Standard(iter) => iter.next(),
+            Iter::Sparse(iter) => iter.next(),
         }
     }
 
     fn nth(&mut self, nth: usize) -> Option<Self::Item> {
         match self {
-            Iter::Standard(ref mut iter) => iter.nth(nth),
-            Iter::Sparse(ref mut iter) => iter.nth(nth),
+            // Bug fix: use a mutable reference to the inner iterator
+            Iter::Standard(iter) => iter.nth(nth),
+            Iter::Sparse(iter) => iter.nth(nth),
         }
     }
 
@@ -56,8 +58,8 @@ impl<'a, T: Item> Iterator for Iter<'a, T> {
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self {
-            Iter::Standard(ref iter) => iter.size_hint(),
-            Iter::Sparse(ref iter) => iter.size_hint(),
+            Iter::Standard(iter) => iter.size_hint(),
+            Iter::Sparse(iter) => iter.size_hint(),
         }
     }
 }

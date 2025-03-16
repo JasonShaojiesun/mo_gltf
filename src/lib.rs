@@ -579,8 +579,8 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             #[cfg(feature = "import")]
-            Error::Base64(ref e) => e.fmt(f),
-            Error::Binary(ref e) => e.fmt(f),
+            Error::Base64(e) => e.fmt(f),
+            Error::Binary(e) => e.fmt(f),
             #[cfg(feature = "import")]
             Error::BufferLength {
                 buffer,
@@ -593,10 +593,10 @@ impl std::fmt::Display for Error {
                     buffer, expected, actual
                 )
             }
-            Error::Deserialize(ref e) => e.fmt(f),
-            Error::Io(ref e) => e.fmt(f),
+            Error::Deserialize(e) => e.fmt(f),
+            Error::Io(e) => e.fmt(f),
             #[cfg(feature = "import")]
-            Error::Image(ref e) => e.fmt(f),
+            Error::Image(e) => e.fmt(f),
             #[cfg(feature = "import")]
             Error::MissingBlob => write!(f, "missing binary portion of binary glTF"),
             #[cfg(feature = "import")]
@@ -611,9 +611,9 @@ impl std::fmt::Display for Error {
             }
             #[cfg(feature = "import")]
             Error::UnsupportedScheme => write!(f, "unsupported URI scheme"),
-            Error::Validation(ref xs) => {
+            Error::Validation(xs) => {
                 write!(f, "invalid glTF:")?;
-                for (ref path, ref error) in xs {
+                for (path, error) in xs {
                     write!(f, " {}: {};", path, error)?;
                 }
                 Ok(())

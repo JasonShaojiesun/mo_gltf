@@ -1,5 +1,5 @@
 [package]
-name = "gltf"
+name = "mo_gltf"
 version = "1.4.1"
 authors = ["David Harvey-Macaulay <alteous@outlook.com>"]
 description = "glTF 2.0 loader"
@@ -10,8 +10,7 @@ readme = "README.md"
 keywords = ["glTF", "3D", "asset", "model", "scene"]
 license = "MIT OR Apache-2.0"
 include = ["**/*.rs", "Cargo.toml", "LICENSE-*"]
-edition = "2021"
-rust-version = "1.61"
+edition = "2024"
 
 [badges]
 travis-ci = { repository = "gltf-rs/gltf" }

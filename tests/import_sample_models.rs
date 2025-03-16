@@ -4,15 +4,15 @@ use std::{fs, path};
 const SAMPLE_MODELS_DIRECTORY_PATH: &str = "glTF-Sample-Assets/Models";
 
 fn check_import_result(
-    result: gltf::Result<(
-        gltf::Document,
-        Vec<gltf::buffer::Data>,
-        Vec<gltf::image::Data>,
+    result: mo_gltf::Result<(
+        mo_gltf::Document,
+        Vec<mo_gltf::buffer::Data>,
+        Vec<mo_gltf::image::Data>,
     )>,
 ) {
-    use gltf::json::validation::Error;
+    use mo_gltf::json::validation::Error;
     match result {
-        Err(gltf::Error::Validation(errors)) => {
+        Err(mo_gltf::Error::Validation(errors)) => {
             let all_unsupported = errors
                 .iter()
                 .all(|(_path, error)| *error == Error::Unsupported);
@@ -54,7 +54,7 @@ fn run() -> Result<(), Box<dyn StdError>> {
                 gltf_path.set_extension("gltf");
                 if gltf_path.exists() {
                     print!("{}: ", gltf_path.display());
-                    check_import_result(gltf::import(&gltf_path));
+                    check_import_result(mo_gltf::import(&gltf_path));
                 }
 
                 // Import standard glTF with embedded buffer and image data.
@@ -62,7 +62,7 @@ fn run() -> Result<(), Box<dyn StdError>> {
                 gle_path.set_extension("gltf");
                 if gle_path.exists() {
                     print!("{}: ", gle_path.display());
-                    check_import_result(gltf::import(&gle_path));
+                    check_import_result(mo_gltf::import(&gle_path));
                 }
 
                 // Import binary glTF.
@@ -70,7 +70,7 @@ fn run() -> Result<(), Box<dyn StdError>> {
                 glb_path.set_extension("glb");
                 if glb_path.exists() {
                     print!("{}: ", glb_path.display());
-                    check_import_result(gltf::import(&glb_path));
+                    check_import_result(mo_gltf::import(&glb_path));
                 }
             }
         }
@@ -83,11 +83,11 @@ fn run() -> Result<(), Box<dyn StdError>> {
 fn sparse_accessor_without_buffer_view_test() -> Result<(), Box<dyn StdError>> {
     let glb_path = path::Path::new("tests/box_sparse.glb");
     print!("{}: ", glb_path.display());
-    check_import_result(gltf::import(glb_path));
+    check_import_result(mo_gltf::import(glb_path));
 
     let gltf_path = path::Path::new("tests/box_sparse.gltf");
     print!("{}: ", gltf_path.display());
-    check_import_result(gltf::import(gltf_path));
+    check_import_result(mo_gltf::import(gltf_path));
     Ok(())
 }
 

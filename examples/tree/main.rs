@@ -2,7 +2,7 @@ use std::boxed::Box;
 use std::error::Error as StdError;
 use std::{fs, io};
 
-fn print_tree(node: &gltf::Node, depth: i32) {
+fn print_tree(node: &mo_gltf::Node, depth: i32) {
     for _ in 0..(depth - 1) {
         print!("  ");
     }
@@ -20,7 +20,7 @@ fn print_tree(node: &gltf::Node, depth: i32) {
 fn run(path: &str) -> Result<(), Box<dyn StdError>> {
     let file = fs::File::open(path)?;
     let reader = io::BufReader::new(file);
-    let gltf = gltf::Gltf::from_reader(reader)?;
+    let gltf = mo_gltf::Gltf::from_reader(reader)?;
     for scene in gltf.scenes() {
         print!("Scene {}", scene.index());
         #[cfg(feature = "names")]
