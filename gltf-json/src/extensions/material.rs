@@ -1,5 +1,5 @@
 #[allow(unused_imports)] // different features use different imports
-use crate::{material::StrengthFactor, texture, validation::Validate, Extras};
+use crate::{Extras, material::StrengthFactor, texture, validation::Validate};
 use gltf_derive::Validate;
 use serde_derive::{Deserialize, Serialize};
 #[cfg(feature = "extensions")]
@@ -79,6 +79,22 @@ pub struct Material {
         skip_serializing_if = "Option::is_none"
     )]
     pub sheen: Option<Sheen>,
+
+    #[cfg(feature = "KHR_materials_anisotropy")]
+    #[serde(
+        default,
+        rename = "KHR_materials_anisotropy",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub anisotropy: Option<Anisotropy>,
+
+    #[cfg(feature = "KHR_materials_iridescence")]
+    #[serde(
+        default,
+        rename = "KHR_materials_iridescence",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub iridescence: Option<Iridescence>,
 
     #[cfg(feature = "extensions")]
     #[serde(default, flatten)]
@@ -499,12 +515,12 @@ pub struct Clearcoat {
 
 #[cfg(feature = "KHR_materials_sheen")]
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
-pub struct SheenColorFactor(pub [f32; 4]);
+pub struct SheenColorFactor(pub [f32; 3]);
 
 #[cfg(feature = "KHR_materials_sheen")]
 impl Default for SheenColorFactor {
     fn default() -> Self {
-        SheenColorFactor([0.0, 0.0, 0.0, 1.0])
+        SheenColorFactor([0.0, 0.0, 0.0])
     }
 }
 
@@ -529,11 +545,10 @@ impl Validate for SheenRoughnessFactor {}
 #[derive(Clone, Debug, Default, Deserialize, Serialize, Validate)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Sheen {
+    /// The sheen color in linear space, default: [0.0, 0.0, 0.0]
     pub sheen_color_factor: SheenColorFactor,
 
-    /// The sheen layer color texture.
-    /// These values are sampled from the RGB channel.
-    /// The values are linear. Use value 1.0 if no texture is supplied.
+    /// The sheen color (RGB). The sheen color is in sRGB transfer function
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sheen_color_texture: Option<texture::Info>,
 
@@ -545,6 +560,141 @@ pub struct Sheen {
     /// The values are linear. Use value 1.0 if no texture is supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sheen_roughness_texture: Option<texture::Info>,
+
+    /// Optional application specific data.
+    #[cfg_attr(feature = "extras", serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(not(feature = "extras"), serde(skip_serializing))]
+    pub extras: Extras,
+}
+
+#[cfg(feature = "KHR_materials_anisotropy")]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct AnisotropyStrength(pub f32);
+
+#[cfg(feature = "KHR_materials_anisotropy")]
+impl Default for AnisotropyStrength {
+    fn default() -> Self {
+        AnisotropyStrength(0.0)
+    }
+}
+
+#[cfg(feature = "KHR_materials_anisotropy")]
+impl Validate for AnisotropyStrength {}
+
+#[cfg(feature = "KHR_materials_anisotropy")]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct AnisotropyRotation(pub f32);
+
+#[cfg(feature = "KHR_materials_anisotropy")]
+impl Default for AnisotropyRotation {
+    fn default() -> Self {
+        AnisotropyRotation(0.0)
+    }
+}
+
+#[cfg(feature = "KHR_materials_anisotropy")]
+impl Validate for AnisotropyRotation {}
+
+#[cfg(feature = "KHR_materials_anisotropy")]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, Validate)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Anisotropy {
+    /// The anisotropy strength. When the anisotropy texture is present, this value is multiplied by the texture's blue channel.
+    pub anistropy_strength: AnisotropyStrength,
+
+    /// The rotation of the anisotropy in tangent, bitangent space, measured in radians counter-clockwise from the tangent. When the anisotropy texture is present, this value provides additional rotation to the vectors in the texture.
+    pub anisotropy_rotation: AnisotropyRotation,
+
+    /// The anisotropy texture. Red and green channels represent the anisotropy direction in [−1,1] tangent, bitangent space to be rotated by the anisotropy rotation. The blue channel contains strength as [0,1] to be multiplied by the anisotropy strength.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub anisotropy_texture: Option<texture::Info>,
+
+    /// Optional application specific data.
+    #[cfg_attr(feature = "extras", serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(not(feature = "extras"), serde(skip_serializing))]
+    pub extras: Extras,
+}
+
+#[cfg(feature = "KHR_materials_iridescence")]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct IridescenceFactor(pub f32);
+
+#[cfg(feature = "KHR_materials_iridescence")]
+impl Default for IridescenceFactor {
+    fn default() -> Self {
+        IridescenceFactor(0.0)
+    }
+}
+
+#[cfg(feature = "KHR_materials_iridescence")]
+impl Validate for IridescenceFactor {}
+
+#[cfg(feature = "KHR_materials_iridescence")]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct IridescenceIor(pub f32);
+
+#[cfg(feature = "KHR_materials_iridescence")]
+impl Default for IridescenceIor {
+    fn default() -> Self {
+        IridescenceIor(1.3)
+    }
+}
+
+#[cfg(feature = "KHR_materials_iridescence")]
+impl Validate for IridescenceIor {}
+
+#[cfg(feature = "KHR_materials_iridescence")]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct IridescenceThicknessMinimum(pub f32);
+
+#[cfg(feature = "KHR_materials_iridescence")]
+impl Default for IridescenceThicknessMinimum {
+    fn default() -> Self {
+        IridescenceThicknessMinimum(100.0)
+    }
+}
+
+#[cfg(feature = "KHR_materials_iridescence")]
+impl Validate for IridescenceThicknessMinimum {}
+
+#[cfg(feature = "KHR_materials_iridescence")]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct IridescenceThicknessMaximum(pub f32);
+
+#[cfg(feature = "KHR_materials_iridescence")]
+impl Default for IridescenceThicknessMaximum {
+    fn default() -> Self {
+        IridescenceThicknessMaximum(400.0)
+    }
+}
+
+#[cfg(feature = "KHR_materials_iridescence")]
+impl Validate for IridescenceThicknessMaximum {}
+
+/// The iridescence layer of the material.
+#[cfg(feature = "KHR_materials_iridescence")]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, Validate)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Iridescence {
+    /// The iridescence intensity factor.
+    pub iridescence_factor: IridescenceFactor,
+
+    /// The iridescence intensity texture.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub iridescence_texture: Option<texture::Info>,
+
+    /// The index of refraction of the dielectric thin-film layer.
+    pub iridescence_ior: IridescenceIor,
+
+    /// The minimum thickness of the thin-film layer given in nanometers.
+    pub iridescence_thickness_minimum: IridescenceThicknessMinimum,
+
+    /// The maximum thickness of the thin-film layer given in nanometers.
+    pub iridescence_thickness_maximum: IridescenceThicknessMaximum,
+
+    /// The thickness texture of the thin-film layer.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub iridescence_thickness_texture: Option<texture::Info>,
 
     /// Optional application specific data.
     #[cfg_attr(feature = "extras", serde(skip_serializing_if = "Option::is_none"))]

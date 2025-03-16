@@ -1,4 +1,4 @@
-use crate::{texture, Document};
+use crate::{Document, texture};
 
 pub use json::material::AlphaMode;
 #[cfg(feature = "extensions")]
@@ -270,6 +270,28 @@ impl<'a> Material<'a> {
             .sheen
             .as_ref()
             .map(|x| Sheen::new(self.document, x))
+    }
+
+    /// Parameter values that define the anisotropy effect.
+    #[cfg(feature = "KHR_materials_anisotropy")]
+    pub fn anisotropy(&self) -> Option<Anisotropy<'a>> {
+        self.json
+            .extensions
+            .as_ref()?
+            .anisotropy
+            .as_ref()
+            .map(|x| Anisotropy::new(self.document, x))
+    }
+
+    /// Parameter values that define the iridescence effect.
+    #[cfg(feature = "KHR_materials_iridescence")]
+    pub fn iridescence(&self) -> Option<Iridescence<'a>> {
+        self.json
+            .extensions
+            .as_ref()?
+            .iridescence
+            .as_ref()
+            .map(|x| Iridescence::new(self.document, x))
     }
 
     /// Optional application specific data.
@@ -804,17 +826,14 @@ pub struct Sheen<'a> {
 #[cfg_attr(docsrs, doc(cfg(feature = "KHR_materials_sheen")))]
 impl<'a> Sheen<'a> {
     /// Constructs `PbrSpecularGlossiness`.
-    pub(crate) fn new(
-        document: &'a Document,
-        json: &'a json::extensions::material::Sheen,
-    ) -> Self {
+    pub(crate) fn new(document: &'a Document, json: &'a json::extensions::material::Sheen) -> Self {
         Self { document, json }
     }
 
     /// Returns the material's sheen color factor.
     ///
-    /// The default value is `0.0; 4`.
-    pub fn sheen_color_factor(&self) -> [f32; 4] {
+    /// The default value is `0.0; 3`.
+    pub fn sheen_color_factor(&self) -> [f32; 3] {
         self.json.sheen_color_factor.0
     }
 
@@ -839,6 +858,132 @@ impl<'a> Sheen<'a> {
             let texture = self.document.textures().nth(json.index.value()).unwrap();
             texture::Info::new(texture, json)
         })
+    }
+
+    /// Optional application specific data.
+    pub fn extras(&self) -> &'a json::Extras {
+        &self.json.extras
+    }
+}
+
+/// A set of parameter values that are used to define the sheen effect.
+#[cfg(feature = "KHR_materials_anisotropy")]
+#[cfg_attr(docsrs, doc(cfg(feature = "KHR_materials_anisotropy")))]
+pub struct Anisotropy<'a> {
+    /// The parent `Document` struct.
+    document: &'a Document,
+
+    /// The corresponding JSON struct.
+    json: &'a json::extensions::material::Anisotropy,
+}
+
+/// A set of parameter values that are used to define the sheen effect.
+#[cfg(feature = "KHR_materials_anisotropy")]
+#[cfg_attr(docsrs, doc(cfg(feature = "KHR_materials_anisotropy")))]
+impl<'a> Anisotropy<'a> {
+    /// Constructs `PbrSpecularGlossiness`.
+    pub(crate) fn new(
+        document: &'a Document,
+        json: &'a json::extensions::material::Anisotropy,
+    ) -> Self {
+        Self { document, json }
+    }
+
+    /// Returns the material's sheen color factor.
+    ///
+    /// The default value is `0.0; 3`.
+    pub fn anisotropy_strength(&self) -> f32 {
+        self.json.anistropy_strength.0
+    }
+
+    /// Returns the material's anisotropy rotation factor.
+    ///
+    /// The default value is `0.0`.
+    pub fn anisotropy_rotation(&self) -> f32 {
+        self.json.anisotropy_rotation.0
+    }
+
+    /// Returns the anisotropy texture.
+    pub fn anisotropy_texture(&self) -> Option<texture::Info<'a>> {
+        self.json.anisotropy_texture.as_ref().map(|json| {
+            let texture = self.document.textures().nth(json.index.value()).unwrap();
+            texture::Info::new(texture, json)
+        })
+    }
+
+    /// Optional application specific data.
+    pub fn extras(&self) -> &'a json::Extras {
+        &self.json.extras
+    }
+}
+
+/// A set of parameter values that are used to define the iridescence effect.
+#[cfg(feature = "KHR_materials_iridescence")]
+#[cfg_attr(docsrs, doc(cfg(feature = "KHR_materials_iridescence")))]
+pub struct Iridescence<'a> {
+    /// The parent `Document` struct.
+    document: &'a Document,
+
+    /// The corresponding JSON struct.
+    json: &'a json::extensions::material::Iridescence,
+}
+
+/// A set of parameter values that are used to define the iridescence effect.
+#[cfg(feature = "KHR_materials_iridescence")]
+#[cfg_attr(docsrs, doc(cfg(feature = "KHR_materials_anisotropy")))]
+impl<'a> Iridescence<'a> {
+    pub(crate) fn new(
+        document: &'a Document,
+        json: &'a json::extensions::material::Iridescence,
+    ) -> Self {
+        Self { document, json }
+    }
+
+    /// The iridescence intensity factor.
+    ///
+    /// The default value is `0.0`.
+    pub fn iridescence_factor(&self) -> f32 {
+        self.json.iridescence_factor.0
+    }
+
+    /// The index of refraction of the dielectric thin-film layer.
+    ///
+    /// The default value is `1.3`.
+    pub fn iridescence_ior(&self) -> f32 {
+        self.json.iridescence_ior.0
+    }
+
+    /// The minimum thickness of the thin-film layer given in nanometers.
+    ///
+    /// The default value is `100.0`.
+    pub fn iridescence_thickness_minimum(&self) -> f32 {
+        self.json.iridescence_thickness_minimum.0
+    }
+
+    /// The maximum thickness of the thin-film layer given in nanometers.
+    ///
+    /// The default value is `400.0`.
+    pub fn iridescence_thickness_maximum(&self) -> f32 {
+        self.json.iridescence_thickness_maximum.0
+    }
+
+    /// The iridescence intensity texture.
+    pub fn iridescence_texture(&self) -> Option<texture::Info<'a>> {
+        self.json.iridescence_texture.as_ref().map(|json| {
+            let texture = self.document.textures().nth(json.index.value()).unwrap();
+            texture::Info::new(texture, json)
+        })
+    }
+
+    /// The thickness texture of the thin-film layer.
+    pub fn iridescence_thickness_texture(&self) -> Option<texture::Info<'a>> {
+        self.json
+            .iridescence_thickness_texture
+            .as_ref()
+            .map(|json| {
+                let texture = self.document.textures().nth(json.index.value()).unwrap();
+                texture::Info::new(texture, json)
+            })
     }
 
     /// Optional application specific data.

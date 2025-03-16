@@ -5,8 +5,7 @@ authors = ["David Harvey-Macaulay <alteous@outlook.com>"]
 description = "JSON parsing for the gltf crate"
 repository = "https://github.com/gltf-rs/gltf"
 license = "MIT OR Apache-2.0"
-edition = "2021"
-rust-version = "1.61"
+edition = "2024"
 
 [dependencies]
 gltf-derive = { path = "../gltf-derive", version = "=1.4.1" }
@@ -33,4 +32,6 @@ KHR_texture_transform = []
 KHR_materials_emissive_strength = []
 KHR_materials_clearcoat = []
 KHR_materials_sheen = []
+KHR_materials_iridescence = []
+KHR_materials_anisotropy = []
 EXT_texture_webp = []
